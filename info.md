@@ -92,3 +92,53 @@ node_modules/.bin/tsc --rootDir src --outDir dist
         "postinstall": "typings install"
     },
 ```
+* Define .gitignore file on root
+```
+/dist/
+/node_modules/
+/typings/
+```
+At this stage we can open *index.html* in the browser and connect the generated */dist/main.js* and the app won't run since the `import` statement is translated into `require` which is not supported in ES5, thus we need another package like **sytemjs** or **webpack**.
+
+## Install Webpack
+
+```
+npm install --save-dev webpack@1.13.2
+```
+* Webpack supports by default only javascript files, so to use typescript we need and additional package, loaders.
+```
+npm install --save-dev ts-loader@0.8.2
+```
+* To run webpack, we need a configuration file named `webpack.config.js`
+```
+var webpack = require('webpack');
+
+module.exports = {
+    entry: './src/main.ts',
+    output: {
+        path: './dist',
+        filename: '.app.bundle.js'
+    },
+    module: {
+        loaders: [{test: /\.ts$/,loader: 'ts'}]
+    },
+    extensions: ['', '.js', '.ts']
+}
+```
+* Now we can rebuild the app
+```
+node_modules/.bin/webpack --progress
+```
+Yet we have errors: *Uncaught reflect-metadata shim is required when using class decorators*
+
+Even thou `"reflect-metadata": "0.1.8",` is present in the package.json, it's a prerequisite and not connected to webpack.
+
+To fix this, we have to import those files into *main.ts*
+```
+import 'core-js';
+import 'reflect-metadata';
+import 'zone.js/dist/zone'
+```
+
+
+
